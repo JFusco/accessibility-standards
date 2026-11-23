@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import test from 'node:test';
 
@@ -30,4 +31,17 @@ test('tooling commits do not publish the package', async () => {
     logger,
   });
   assert.equal(releaseType, null);
+});
+
+test('wiki maintenance PR titles suppress a release when used as squash commit messages', async () => {
+  const [, options] = analyzer;
+  for (const [name, count] of [['wiki-sync', 2], ['wiki-issue-sync', 1]]) {
+    const workflow = await readFile(new URL(`../../.github/workflows/${name}.yml`, import.meta.url), 'utf8');
+    const titles = [...workflow.matchAll(/\btitle=(['"])(docs\(wiki\): [^\n]+?)\1/g)];
+    assert.equal(titles.length, count);
+    for (const [, , title] of titles) {
+      const message = title.replace('$PR_NUMBER', '42');
+      assert.equal(await analyzeCommits(options, { commits: [{ message }], logger }), null, message);
+    }
+  }
 });

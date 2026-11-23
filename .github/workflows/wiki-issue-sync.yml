@@ -35,12 +35,12 @@ jobs:
           test -n "$GH_TOKEN" || { echo 'BOT_TOKEN is required'; exit 1; }
           gh api rate_limit >/dev/null
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           token: ${{ secrets.BOT_TOKEN }}
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "24.14.0"
       - name: Refresh cited issues and reconcile missed merges
@@ -90,7 +90,7 @@ jobs:
           BRANCH: ${{ steps.refresh.outputs.branch }}
         run: |
           owner="${GITHUB_REPOSITORY%%/*}"
-          title='docs(wiki): weekly issue and merge reconciliation'
+          title='docs(wiki): weekly issue and merge reconciliation [skip release]'
           counts="$(jq -r '"Processed \(.processed) merged PRs: \(.changed) changed, \(.unchanged) unchanged, \(.errors) errors."' "$RUNNER_TEMP/wiki-reconcile-summary.json")"
           body="Automated, reviewable weekly refresh of cited issue state and missed merge reconciliation. $counts"
           pulls="$(gh api --method GET "repos/$GITHUB_REPOSITORY/pulls" -f state=all -f head="$owner:$BRANCH" -f base="$BASE_BRANCH" -f per_page=100)"

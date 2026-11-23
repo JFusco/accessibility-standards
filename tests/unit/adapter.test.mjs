@@ -10,7 +10,10 @@ test('public pinned catalog covers every slug and preserves unresolved discrimin
   const mappings = JSON.parse(await readFile(new URL('../../src/applicability/ui-design-brain-bindings.yml',import.meta.url)));
   assert.deepEqual(mappings.bindings.map(row => row.ui_pattern_id),catalog.map(row => row.slug).sort());
   const result = await resolveUiPatterns({'component.ui_pattern_ids':['select']});
-  assert.ok(result.unresolved?.length || result.candidates?.length || JSON.stringify(result).includes('component.selection_model'));
+  assert.deepEqual(result.candidate_evaluations.map(({ pattern_id, resolution_state, missing_facts }) => ({ pattern_id, resolution_state, missing_facts })), [
+    { pattern_id: 'pattern.combobox', resolution_state: 'needs_input', missing_facts: ['component.selection_model'] },
+    { pattern_id: 'pattern.listbox', resolution_state: 'needs_input', missing_facts: ['component.selection_model'] },
+  ]);
 });
 
 test('adapter refuses a substituted manifest even with matching package metadata', async () => {
@@ -27,6 +30,7 @@ test('adapter refuses a substituted manifest even with matching package metadata
 test('disclosure and popover guidance distinguishes optional ARIA and native dismissal', async () => {
   const { resolveContract } = await import('../../lib/consumer.mjs');
   const disclosure = await resolveContract('pattern.disclosure');
+  assert.match(disclosure.record.behavior.join(' '), /Unless a native element such as summary already exposes the expanded state, keep aria-expanded synchronized on the button/);
   assert.match(disclosure.record.behavior.join(' '), /aria-controls optional/);
   const popover = await resolveContract('pattern.popover');
   assert.match(popover.record.behavior.join(' '), /popovertarget.*dismissal/);

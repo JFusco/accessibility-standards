@@ -11,6 +11,6 @@ fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,
   `Published ${name}@${version}\n\nRevision: ${revision}\n\nRegistry: ${registry || 'error'}\n\nNotification: ${accepted ? 'accepted' : 'failed'}\n`);
 if (registry !== 'ready') console.log('::warning::Registry availability is delayed or unknown. Scheduled scans provide fallback.');
 if (!accepted) {
-  console.error('::error::Publication succeeded but notification failed. Reconcile publication, then use authorized dispatch credentials: gh api --method POST repos/JFusco/renovate-config/dispatches -f event_type=package-released. Scheduled scans provide fallback.');
+  console.error(`::error::Publication succeeded but notification failed. Reconcile publication and check out the published revision ${revision}. With an authorized dispatch token in GH_TOKEN, run GITHUB_REPOSITORY=JFusco/accessibility-standards node scripts/notify-pin-courier.cjs. Scheduled scans provide fallback.`);
   process.exitCode = 1;
 }

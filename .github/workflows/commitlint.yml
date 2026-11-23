@@ -33,6 +33,11 @@ jobs:
 
       - name: Identify trusted Pin Courier PR
         id: pin_courier
+        if: >-
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          github.event.pull_request.user.login == 'pin-courier[bot]' &&
+          github.event.pull_request.user.id == 351979519 &&
+          github.event.pull_request.user.type == 'Bot'
         run: node scripts/is-pin-courier-pr.cjs
 
       - name: Get pnpm store path
@@ -51,19 +56,35 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Validate PR body
-        if: ${{ !startsWith(github.event.pull_request.head.ref, 'bot/wiki-') && !startsWith(github.event.pull_request.head.ref, 'dependabot/') && steps.pin_courier.outputs.trusted != 'true' }}
+        if: >-
+          github.event.pull_request.head.repo.full_name != github.repository ||
+          (!startsWith(github.event.pull_request.head.ref, 'bot/wiki-') &&
+           !(startsWith(github.event.pull_request.head.ref, 'dependabot/') &&
+             github.event.pull_request.user.login == 'dependabot[bot]' &&
+             github.event.pull_request.user.type == 'Bot') &&
+           steps.pin_courier.outputs.trusted != 'true')
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
         run: pnpm run lint:pr
 
       - name: Lint PR title
-        if: ${{ !startsWith(github.event.pull_request.head.ref, 'dependabot/') && steps.pin_courier.outputs.trusted != 'true' }}
+        if: >-
+          github.event.pull_request.head.repo.full_name != github.repository ||
+          (!(startsWith(github.event.pull_request.head.ref, 'dependabot/') &&
+             github.event.pull_request.user.login == 'dependabot[bot]' &&
+             github.event.pull_request.user.type == 'Bot') &&
+           steps.pin_courier.outputs.trusted != 'true')
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: printf '%s\n' "$PR_TITLE" | pnpm exec commitlint --config commitlint.config.cjs --verbose
 
       - name: Lint commit messages
-        if: ${{ !startsWith(github.event.pull_request.head.ref, 'dependabot/') && steps.pin_courier.outputs.trusted != 'true' }}
+        if: >-
+          github.event.pull_request.head.repo.full_name != github.repository ||
+          (!(startsWith(github.event.pull_request.head.ref, 'dependabot/') &&
+             github.event.pull_request.user.login == 'dependabot[bot]' &&
+             github.event.pull_request.user.type == 'Bot') &&
+           steps.pin_courier.outputs.trusted != 'true')
         run: |
           pnpm exec commitlint --config commitlint.config.cjs \
             --from "${{ github.event.pull_request.base.sha }}" \

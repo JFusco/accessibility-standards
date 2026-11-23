@@ -3,9 +3,9 @@ import argparse
 from concurrent.futures import ThreadPoolExecutor
 import hashlib
 from html.parser import HTMLParser
+from http.client import HTTPException
 import json
 from pathlib import Path
-from urllib.error import HTTPError
 from urllib.parse import urldefrag, urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
@@ -44,17 +44,22 @@ class DocumentText(HTMLParser):
 
 def inventory(mode):
     sources = json.loads((ROOT / 'src/sources.yml').read_text())['authorities']
-    docs = {entry['url']: {} for entry in sources}
+    authorities = {entry['id']: official(entry['url']) for entry in sources}
+    docs = {url: {} for url in authorities.values()}
     for folder in ('patterns', 'semantics', 'foundations', 'policies'):
         for path in sorted((ROOT / 'src' / folder).rglob('*.yml')):
             value = json.loads(path.read_text())
             for record in value if isinstance(value, list) else [value]:
                 for ref in record.get('standards_refs', []):
-                    url, fragment = urldefrag(ref['url'])
-                    if mode == 'index':
-                        url = next(entry['url'] for entry in sources if entry['id'] == ref['authority'])
-                        fragment = ''
-                    docs.setdefault(official(url), {}).setdefault(fragment, set()).add(record['id'])
+                    docs[authorities[ref['authority']]].setdefault('', set()).add(record['id'])
+                    if mode == 'full':
+                        url, fragment = urldefrag(ref['url'])
+                        docs.setdefault(official(url), {}).setdefault(fragment, set()).add(record['id'])
+    if mode == 'full':
+        coverage = json.loads((ROOT / 'src/coverage/aria-apg.yml').read_text())
+        for table in ('patterns', 'practices'):
+            ids = docs.setdefault(official(coverage[f'{table}_url']), {}).setdefault('', set())
+            ids.update(record_id for row in coverage[table] for record_id in row['record_ids'])
     return docs
 
 def observe(item):
@@ -65,16 +70,19 @@ def observe(item):
         with build_opener(Redirect()).open(req, timeout=20) as response:
             if response.headers.get_content_type() not in ('text/html','application/xhtml+xml'):
                 raise ValueError('Expected HTML')
+            expected_length = response.length
             content = response.read(LIMIT + 1)
             if len(content) > LIMIT:
                 raise ValueError('Document exceeds scan limit')
+            if expected_length is not None and len(content) < expected_length:
+                raise ValueError(f'Incomplete document: expected {expected_length} bytes, received {len(content)}')
             parser = DocumentText()
             parser.feed(content.decode(response.headers.get_content_charset() or 'utf-8'))
         if not parser.parts:
             raise ValueError('Empty document')
         result['sha256'] = hashlib.sha256(' '.join(parser.parts).encode()).hexdigest()
         result['missing_anchors'] = sorted(key for key in anchors if key and key not in parser.anchors)
-    except (OSError, HTTPError, ValueError) as error:
+    except (OSError, HTTPException, LookupError, ValueError) as error:
         result['error'] = str(error)
     return result
 
