@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "index.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "provenance",
+    "records"
+  ],
+  "properties": {
+    "provenance": {
+      "type": "object",
+      "required": [
+        "package",
+        "schema_version",
+        "source_digest"
+      ],
+      "properties": {
+        "package": {
+          "type": "string",
+          "pattern": "^accessibility-standards@\\d+\\.\\d+\\.\\d+$"
+        },
+        "schema_version": {
+          "const": 1
+        },
+        "source_digest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        }
+      }
+    },
+    "records": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "path"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

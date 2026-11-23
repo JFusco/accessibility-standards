@@ -1,0 +1,111 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: accessibility-standards-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24.14.0"
+
+      - name: Enable pnpm via Corepack
+        run: corepack enable && corepack install
+
+      - name: Get pnpm store path
+        id: pnpm-cache
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache pnpm store
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Reject aggregated breaking-change bodies
+        run: pnpm run release:preflight
+
+      - name: Verify source, projections, and tests
+        run: pnpm run verify:ci
+
+      - name: Pack and clean-install tarball
+        run: node scripts/verify-packed-consumer.mjs
+
+      - name: Inspect packed artifact
+        run: npm pack --dry-run --ignore-scripts
+
+      - name: Record pre-release revision
+        id: before
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Publish, tag, changelog, and GitHub release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: pnpm exec semantic-release
+
+      - name: Detect a published release
+        id: released
+        env:
+          BEFORE_SHA: ${{ steps.before.outputs.sha }}
+        run: |
+          # @semantic-release/git commits the release, so HEAD moves only when a version was published.
+          if [ "$(git rev-parse HEAD)" != "$BEFORE_SHA" ]; then echo 'published=true' >> "$GITHUB_OUTPUT"; fi
+
+      - name: Wait for the release on the npm registry
+        id: registry
+        if: steps.released.outputs.published == 'true'
+        timeout-minutes: 12
+        continue-on-error: true
+        run: node scripts/registry-readiness.cjs
+
+      - name: Mint Pin Courier token
+        id: courier
+        if: ${{ always() && steps.released.outputs.published == 'true' }}
+        continue-on-error: true
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ secrets.RENOVATE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RENOVATE_APP_PRIVATE_KEY }}
+          owner: JFusco
+          repositories: renovate-config
+          permission-contents: write
+
+      - name: Notify the Renovate runner
+        id: notify
+        if: ${{ always() && steps.released.outputs.published == 'true' && steps.courier.outcome == 'success' }}
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ steps.courier.outputs.token }}
+        run: node scripts/notify-pin-courier.cjs
+
+      - name: Report publication and notification
+        if: ${{ always() && steps.released.outputs.published == 'true' }}
+        env:
+          REGISTRY_STATUS: ${{ steps.registry.outputs.status }}
+          REGISTRY_OUTCOME: ${{ steps.registry.outcome }}
+          TOKEN_OUTCOME: ${{ steps.courier.outcome }}
+          NOTIFY_OUTCOME: ${{ steps.notify.outcome }}
+        run: node scripts/release-notification-summary.cjs

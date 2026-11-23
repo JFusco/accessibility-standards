@@ -1,0 +1,87 @@
+name: Quality
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  quality:
+    name: quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24.14.0"
+      - name: Classify verification scope
+        id: scope
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_DRAFT: ${{ github.event.pull_request.draft || false }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          BEFORE_SHA: ${{ github.event.before || '' }}
+        run: |
+          full=true
+          reason='manual dispatch'
+          if [ "$EVENT_NAME" = 'pull_request' ] && [ "$PR_DRAFT" = 'true' ]; then
+            full=false; reason='draft pull request'
+          elif [ "$EVENT_NAME" = 'pull_request' ] || [ "$EVENT_NAME" = 'push' ]; then
+            if [ "$EVENT_NAME" = 'push' ]; then BASE_SHA="$BEFORE_SHA"; fi
+            if [ -z "$BASE_SHA" ] || [ "$BASE_SHA" = '0000000000000000000000000000000000000000' ] || ! git cat-file -e "${BASE_SHA}^{commit}"; then
+              echo 'full=true' >> "$GITHUB_OUTPUT"; echo 'reason=change range unavailable' >> "$GITHUB_OUTPUT"; exit 0
+            fi
+            full=false; reason='wiki-only change'
+            changed_files="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
+            while IFS= read -r file; do
+              case "$file" in wiki/*|scripts/wiki/graph/data/graph.json) ;; *) full=true; reason='substantive change'; break ;; esac
+            done <<< "$changed_files"
+            if [ -z "$changed_files" ]; then full=true; reason='empty change set'; fi
+          fi
+          echo "full=$full" >> "$GITHUB_OUTPUT"
+          echo "reason=$reason" >> "$GITHUB_OUTPUT"
+      - name: Lightweight verification
+        if: steps.scope.outputs.full != 'true'
+        run: |
+          echo "Full suite skipped: ${{ steps.scope.outputs.reason }}"
+          node scripts/wiki/check.cjs
+      - name: Enable pnpm via Corepack
+        if: steps.scope.outputs.full == 'true'
+        run: corepack enable && corepack install
+      - name: Get pnpm store path
+        if: steps.scope.outputs.full == 'true'
+        id: pnpm-cache
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+      - name: Cache pnpm store
+        if: steps.scope.outputs.full == 'true'
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+      - name: Install dependencies
+        if: steps.scope.outputs.full == 'true'
+        run: pnpm install --frozen-lockfile
+      - name: Run complete non-fixing quality gate
+        if: steps.scope.outputs.full == 'true'
+        run: pnpm run verify:ci

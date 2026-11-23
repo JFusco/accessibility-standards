@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "consumer-config.schema.json",
+  "type": "object",
+  "required": [
+    "package",
+    "profile",
+    "routes"
+  ],
+  "properties": {
+    "package": {
+      "type": "string",
+      "pattern": "^accessibility-standards@\\d+\\.\\d+\\.\\d+$"
+    },
+    "profile": {
+      "const": "standalone"
+    },
+    "routes": {
+      "type": "string"
+    },
+    "outputRoot": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}
