@@ -1,0 +1,663 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { compileApplicability } from '../../lib/compile-applicability.mjs';
+import { loadStandards } from '../../lib/load.mjs';
+
+const newSemantics = [
+  ['semantics.accessible-authentication', '3.3.8', 'AA', 'accessible-authentication-minimum'],
+  ['semantics.consistent-help', '3.2.6', 'A', 'consistent-help'],
+  ['semantics.dragging-alternative', '2.5.7', 'AA', 'dragging-movements'],
+  ['semantics.redundant-entry', '3.3.7', 'A', 'redundant-entry']
+];
+
+const phaseTwoSemantics = [
+  ['semantics.contrast-minimum', '1.4.3', 'AA', 'contrast-minimum', ['axe', 'human']],
+  ['semantics.reflow', '1.4.10', 'AA', 'reflow', ['e2e', 'human']],
+  ['semantics.non-text-contrast', '1.4.11', 'AA', 'non-text-contrast', ['axe', 'human']],
+  ['semantics.text-spacing', '1.4.12', 'AA', 'text-spacing', ['e2e', 'human']],
+  ['semantics.content-on-hover-or-focus', '1.4.13', 'AA', 'content-on-hover-or-focus', ['e2e', 'human']],
+  ['semantics.character-key-shortcuts', '2.1.4', 'A', 'character-key-shortcuts', ['e2e', 'human']],
+  ['semantics.timing-adjustable', '2.2.1', 'A', 'timing-adjustable', ['e2e', 'human']],
+  ['semantics.bypass-blocks', '2.4.1', 'A', 'bypass-blocks', ['axe', 'e2e', 'human']],
+  ['semantics.page-title', '2.4.2', 'A', 'page-titled', ['axe', 'human']],
+  ['semantics.focus-order', '2.4.3', 'A', 'focus-order', ['e2e', 'human']],
+  ['semantics.link-purpose', '2.4.4', 'A', 'link-purpose-in-context', ['axe', 'human']],
+  ['semantics.multiple-ways', '2.4.5', 'AA', 'multiple-ways', ['e2e', 'human']],
+  ['semantics.pointer-gestures', '2.5.1', 'A', 'pointer-gestures', ['e2e', 'human']],
+  ['semantics.pointer-cancellation', '2.5.2', 'A', 'pointer-cancellation', ['e2e', 'human']],
+  ['semantics.motion-actuation', '2.5.4', 'A', 'motion-actuation', ['e2e', 'human']],
+  ['semantics.language.page', '3.1.1', 'A', 'language-of-page', ['axe', 'human']],
+  ['semantics.language.parts', '3.1.2', 'AA', 'language-of-parts', ['axe', 'human']],
+  ['semantics.context-change.focus', '3.2.1', 'A', 'on-focus', ['e2e', 'human']],
+  ['semantics.context-change.input', '3.2.2', 'A', 'on-input', ['e2e', 'human']],
+  ['semantics.consistent-navigation', '3.2.3', 'AA', 'consistent-navigation', ['e2e', 'human']],
+  ['semantics.consistent-identification', '3.2.4', 'AA', 'consistent-identification', ['e2e', 'human']],
+];
+
+const phaseThreeSemantics = [
+  ['semantics.audio-control', '1.4.2', 'A', 'audio-control', ['e2e', 'human']],
+  ['semantics.flash-threshold', '2.3.1', 'A', 'three-flashes-or-below-threshold', ['e2e', 'human']],
+  ['semantics.headings-labels-purpose', '2.4.6', 'AA', 'headings-and-labels', ['human']],
+  ['semantics.images-of-text', '1.4.5', 'AA', 'images-of-text', ['human']],
+  ['semantics.info-relationships', '1.3.1', 'A', 'info-and-relationships', ['axe', 'human']],
+  ['semantics.input-labels-instructions', '3.3.2', 'A', 'labels-or-instructions', ['axe', 'human']],
+  ['semantics.input-purpose', '1.3.5', 'AA', 'identify-input-purpose', ['axe', 'human']],
+  ['semantics.meaningful-sequence', '1.3.2', 'A', 'meaningful-sequence', ['e2e', 'human']],
+  ['semantics.media.audio-description-or-alternative-prerecorded', '1.2.3', 'A', 'audio-description-or-media-alternative-prerecorded', ['e2e', 'human']],
+  ['semantics.media.audio-description-prerecorded', '1.2.5', 'AA', 'audio-description-prerecorded', ['e2e', 'human']],
+  ['semantics.media.captions-live', '1.2.4', 'AA', 'captions-live', ['e2e', 'human']],
+  ['semantics.media.captions-prerecorded', '1.2.2', 'A', 'captions-prerecorded', ['e2e', 'human']],
+  ['semantics.media.prerecorded-audio-video-only-alternatives', '1.2.1', 'A', 'audio-only-and-video-only-prerecorded', ['e2e', 'human']],
+  ['semantics.non-text-content', '1.1.1', 'A', 'non-text-content', ['axe', 'human']],
+  ['semantics.orientation', '1.3.4', 'AA', 'orientation', ['e2e', 'human']],
+  ['semantics.resize-text', '1.4.4', 'AA', 'resize-text', ['e2e', 'human']],
+  ['semantics.sensory-characteristics', '1.3.3', 'A', 'sensory-characteristics', ['human']],
+  ['semantics.use-of-color', '1.4.1', 'A', 'use-of-color', ['human']],
+];
+
+const ariaSemanticContracts = {
+  'semantics.accessible-description': {
+    proof: ['unit', 'axe', 'e2e', 'human'],
+    refs: ['aria-apg:names-and-descriptions', 'wai-aria-1.2:aria-describedby', 'wai-aria-1.2:aria-details'],
+    details: [/separately from the accessible name/, /aria-describedby/, /aria-details/],
+  },
+  'semantics.busy-state': {
+    proof: ['unit', 'e2e', 'human'],
+    refs: ['wai-aria-1.2:aria-busy'],
+    details: [/aria-busy to true/, /until all required owned elements/, /not use busy state as a substitute/],
+  },
+  'semantics.collection-metadata': {
+    proof: ['unit', 'axe', 'e2e', 'human'],
+    refs: ['aria-apg:grid-and-table-properties', 'wai-aria-1.2:aria-colcount', 'wai-aria-1.2:aria-colindex', 'wai-aria-1.2:aria-colspan', 'wai-aria-1.2:aria-level', 'wai-aria-1.2:aria-posinset', 'wai-aria-1.2:aria-rowcount', 'wai-aria-1.2:aria-rowindex', 'wai-aria-1.2:aria-rowspan', 'wai-aria-1.2:aria-setsize', 'wcag-2.2:1.3.1', 'wcag-2.2-understanding:1.3.1'],
+    details: [/one-based logical position/, /aria-rowspan/, /-1 represents only a genuinely unknown total/, /user agent can calculate from the complete DOM/],
+  },
+  'semantics.composite-focus': {
+    proof: ['unit', 'axe', 'e2e', 'human'],
+    refs: ['aria-apg:keyboard-interface', 'wai-aria-1.2:aria-activedescendant'],
+    details: [/one predictable stop/, /roving tabindex/, /aria-activedescendant/, /distinct from selection/],
+  },
+  'semantics.current-state': {
+    proof: ['unit', 'axe', 'e2e', 'human'],
+    refs: ['aria-apg:breadcrumb', 'wai-aria-1.2:aria-current'],
+    details: [/exactly one current item/, /page, step, location, date, time, or true/, /do not substitute current state for selected, checked, or pressed state/],
+  },
+  'semantics.disabled-readonly': {
+    proof: ['unit', 'axe', 'e2e', 'human'],
+    refs: ['aria-apg:keyboard-interface', 'wai-aria-1.2:aria-disabled', 'wai-aria-1.2:aria-readonly', 'wcag-2.2:4.1.2', 'wcag-2.2-understanding:4.1.2'],
+    details: [/host-language disabled and read-only features/, /aria-disabled alone does not suppress behavior/, /read-only control remains operable/, /never interchange the two states/],
+  },
+  'semantics.hidden-inert': {
+    proof: ['unit', 'axe', 'e2e', 'human'],
+    refs: ['aria-apg:keyboard-interface', 'aria-in-html:author-conformance', 'html:inert', 'wai-aria-1.2:aria-hidden'],
+    details: [/Never set aria-hidden to true on body, a focusable element/, /hidden=until-found/, /do not use aria-hidden alone to make content inoperable/, /move focus to a logical visible target/, /find-in-page, and accessibility-tree interaction together/],
+  },
+  'semantics.presentational-role': {
+    proof: ['unit', 'axe', 'e2e', 'human'],
+    refs: ['aria-apg:hiding-semantics', 'aria-apg:structural-roles', 'wai-aria-1.2:none', 'wai-aria-1.2:presentation'],
+    details: [/discard redundant host-language semantics/, /Never use a presentational role to hide content or functionality/, /focusable element or an element with a global ARIA state or property/],
+  },
+  'semantics.pressed-state': {
+    proof: ['unit', 'axe', 'e2e', 'human'],
+    refs: ['aria-apg:button', 'wai-aria-1.2:aria-pressed', 'wcag-2.2:4.1.2', 'wcag-2.2-understanding:4.1.2'],
+    details: [/only on a toggle button/, /mixed only when a genuine tri-state aggregate exists/, /accessible name stable/, /exactly once per user action/],
+  },
+  'semantics.range-value': {
+    proof: ['unit', 'axe', 'e2e', 'human'],
+    refs: ['aria-apg:range-related-properties', 'wai-aria-1.2:aria-valuemax', 'wai-aria-1.2:aria-valuemin', 'wai-aria-1.2:aria-valuenow', 'wai-aria-1.2:aria-valuetext'],
+    details: [/native range, meter, progress, or numeric input element/, /always expose aria-valuenow on meter, scrollbar, focusable separator, and slider/, /progressbar only when progress is determinate/, /spinbutton has no minimum or maximum defaults/, /minimum is not greater than maximum/, /every current value within the range/, /never use text as a substitute when aria-valuenow is required/],
+  },
+  'semantics.sort-state': {
+    proof: ['unit', 'axe', 'e2e', 'human'],
+    refs: ['aria-apg:grid-and-table-properties', 'wai-aria-1.2:aria-sort', 'wcag-2.2:1.3.1', 'wcag-2.2-understanding:1.3.1'],
+    details: [/only the row or column header that represents the active sort key/, /remove it from every other header/, /multi-key sorting/, /complete sort precedence separately/],
+  },
+};
+
+function semanticById(data, id) {
+  const semantic = data.semantics.find((candidate) => candidate.id === id);
+  assert.ok(semantic, `missing semantic ${id}`);
+  return semantic;
+}
+
+function rowById(data, id) {
+  const row = data.matrix.rows.find((candidate) => candidate.id === id);
+  assert.ok(row, `missing applicability row ${id}`);
+  return row;
+}
+
+test('every semantic has normalized, authoritative, deterministically sorted standards references', async () => {
+  const data = await loadStandards();
+  const authorities = new Map(data.sources.authorities.map((authority) => [authority.id, authority]));
+
+  for (const semantic of data.semantics) {
+    assert.ok(semantic.standards_refs?.length, `${semantic.id} must cite at least one standards source`);
+    const identities = [];
+    for (const ref of semantic.standards_refs) {
+      assert.deepEqual(
+        Object.keys(ref).sort(),
+        ['authority', 'identifier', ...(ref.level === undefined ? [] : ['level']), 'normative', 'url'],
+        `${semantic.id} has a non-normalized standards reference`
+      );
+      const authority = authorities.get(ref.authority);
+      assert.ok(authority, `${semantic.id} cites undeclared authority ${ref.authority}`);
+      assert.equal(ref.normative, authority.normative, `${semantic.id} has the wrong normative flag for ${ref.authority}`);
+      assert.ok(ref.url.startsWith(authority.url), `${semantic.id} reference is outside ${ref.authority}`);
+      identities.push(`${ref.authority}\u0000${ref.identifier}\u0000${ref.url}`);
+
+      if (ref.authority === 'wcag-2.2') {
+        assert.match(ref.identifier, /^\d+\.\d+\.\d+$/);
+        assert.match(ref.url, /^https:\/\/www\.w3\.org\/TR\/WCAG22\/#/);
+        assert.ok(['A', 'AA', 'AAA'].includes(ref.level), `${semantic.id} WCAG reference must declare a level`);
+      }
+      if (ref.authority === 'wcag-2.2-understanding') {
+        assert.match(ref.identifier, /^\d+\.\d+\.\d+$/);
+        assert.match(ref.url, /^https:\/\/www\.w3\.org\/WAI\/WCAG22\/Understanding\/[a-z0-9-]+\.html$/);
+        assert.ok(['A', 'AA', 'AAA'].includes(ref.level), `${semantic.id} Understanding reference must declare a level`);
+      }
+    }
+    assert.deepEqual(identities, [...identities].sort(), `${semantic.id} standards references are not sorted`);
+    assert.equal(new Set(identities).size, identities.length, `${semantic.id} standards references are duplicated`);
+  }
+});
+
+test('schema 4 exposes all 11 cross-cutting ARIA semantics with implementation-grade evidence and caveats', async () => {
+  const data = await loadStandards();
+  const expectedIds = Object.keys(ariaSemanticContracts).sort();
+  assert.deepEqual(
+    data.semantics.map(({ id }) => id).filter((id) => expectedIds.includes(id)).sort(),
+    expectedIds,
+  );
+
+  for (const [id, expectation] of Object.entries(ariaSemanticContracts)) {
+    const semantic = semanticById(data, id);
+    assert.equal(semantic.version, '1.0.0');
+    assert.equal(semantic.kind, 'semantic');
+    assert.deepEqual(semantic.proof, expectation.proof, `${id} has incorrect proof routing`);
+    assert.deepEqual(
+      semantic.standards_refs.map(({ authority, identifier }) => `${authority}:${identifier}`),
+      expectation.refs,
+      `${id} has incomplete or incorrect ARIA/APG provenance`,
+    );
+    for (const detail of expectation.details) assert.match(semantic.requirement, detail, `${id} omits ${detail}`);
+  }
+});
+
+test('audited semantic contracts retain the corrected APG, HTML, and ARIA distinctions', async () => {
+  const data = await loadStandards();
+  const description = semanticById(data, 'semantics.accessible-description');
+  assert.equal(
+    data.semantics.flatMap(({ standards_refs = [] }) => standards_refs)
+      .some(({ authority, identifier }) => authority === 'wai-aria-1.2' && identifier === 'aria-description'),
+    false,
+    'WAI-ARIA 1.2 must not be cited for the later aria-description property',
+  );
+  for (const detail of ['prefer visible text', 'aria-describedby in a meaningful order', 'structured or too extensive to flatten', 'content available to all users', 'do not duplicate the name or include unrelated prose']) {
+    assert.ok(description.requirement.includes(detail), `accessible-description requirement omits ${detail}`);
+  }
+
+  const landmarks = semanticById(data, 'semantics.landmarks').requirement;
+  for (const detail of ['one visible main landmark', 'banner, main, complementary, and contentinfo landmarks at the top level', 'only when their content and purpose warrant the landmark', 'Every region landmark has a concise accessible name', 'form landmark should have a name that preferably references a visible heading', 'use distinct names when their content or purpose differs', 'use the same name when repeated navigation landmarks have identical content and purpose', 'never repeat the role name in the label', 'Avoid unnecessary landmarks']) {
+    assert.ok(landmarks.includes(detail), `landmarks requirement omits ${detail}`);
+  }
+
+  const table = semanticById(data, 'semantics.data-table').requirement;
+  for (const detail of ['native table', 'descriptive caption when the table needs identification', 'row or column scope', 'headers and id only for relationships that scope cannot express', 'ARIA table only when native table markup is unavailable', 'aria-labelledby or using aria-label when no visible label exists', 'caption or description with aria-describedby', 'complete row, cell, and header ownership', 'only when the DOM or native markup cannot communicate them', 'grid or treegrid—not table']) {
+    assert.ok(table.includes(detail), `data-table requirement omits ${detail}`);
+  }
+
+  const range = semanticById(data, 'semantics.range-value').requirement;
+  for (const detail of ['always expose aria-valuenow on meter, scrollbar, focusable separator, and slider', 'progressbar only when progress is determinate', 'spinbutton only when a current value exists', 'omitting it for unknown or indeterminate values', 'zero and one-hundred minimum and maximum defaults', 'spinbutton has no minimum or maximum defaults', 'never use text as a substitute when aria-valuenow is required']) {
+    assert.ok(range.includes(detail), `range-value requirement omits ${detail}`);
+  }
+
+  const hidden = semanticById(data, 'semantics.hidden-inert');
+  assert.deepEqual(
+    hidden.standards_refs.find(({ authority }) => authority === 'html'),
+    {
+      authority: 'html',
+      identifier: 'inert',
+      url: 'https://html.spec.whatwg.org/multipage/interaction.html#the-inert-attribute',
+      normative: true,
+    },
+  );
+  for (const detail of ['equivalent meaning and functionality remain exposed', 'hidden=until-found', "aria-hidden=false cannot override aria-hidden=true on an ancestor", 'move focus to a logical visible target', 'keep critical content outside the inert subtree', 'suppress keyboard, pointer, touch, selection, editing, find-in-page, and accessibility-tree interaction together', 'restore exposure, operability, and focus order together']) {
+    assert.ok(hidden.requirement.includes(detail), `hidden-inert requirement omits ${detail}`);
+  }
+
+  const keyboard = semanticById(data, 'semantics.keyboard').requirement;
+  for (const detail of ['conventional role-specific keys inside composite widgets', 'never use a positive tabindex value to repair visual order', 'Keyboard shortcuts supplement rather than replace ordinary navigable access', 'keep every shortcut target keyboard-focusable', 'preserve browser and assistive-technology shortcuts', 'prevent default behavior only for keys the active widget owns', 'documented keyboard method to leave every focus context']) {
+    assert.ok(keyboard.includes(detail), `keyboard requirement omits ${detail}`);
+  }
+
+  const focus = semanticById(data, 'semantics.focus.visible').requirement;
+  for (const detail of ['persistent, discernible indicator', 'visually distinguish focus from selection', 'forced-colors and other high-contrast modes', 'colors or gradients that can disappear', 'scroll the active target into view']) {
+    assert.ok(focus.includes(detail), `focus.visible requirement omits ${detail}`);
+  }
+
+  const accessibleName = semanticById(data, 'semantics.accessible-name').requirement;
+  for (const detail of ['Do not name roles for which naming is prohibited', 'do not override useful descendant content without accounting for the replacement', 'do not duplicate the role or state in the name', 'same order where practical', 'follows legitimate visible-label changes that communicate a changed action or purpose']) {
+    assert.ok(accessibleName.includes(detail), `accessible-name requirement omits ${detail}`);
+  }
+  assert.doesNotMatch(accessibleName, /remains stable when only state changes/);
+
+  const roles = semanticById(data, 'semantics.roles-states-properties').requirement;
+  for (const detail of ['valid, nonabstract, nondeprecated ARIA roles', 'only nondeprecated states and properties supported by the role and permitted on the host element', 'ASCII lowercase', 'required context and owned-role relationships', 'never rely on ARIA to supply missing keyboard or pointer behavior', 'remove states and properties that no longer apply']) {
+    assert.ok(roles.includes(detail), `roles-states-properties requirement omits ${detail}`);
+  }
+});
+
+test('WCAG 2.2 additions have dedicated semantics and normative plus explanatory citations', async () => {
+  const data = await loadStandards();
+  assert.deepEqual(newSemantics.map(([id]) => id), [...newSemantics.map(([id]) => id)].sort());
+
+  for (const [id, criterion, level, slug] of newSemantics) {
+    const semantic = semanticById(data, id);
+    assert.deepEqual(semantic.proof, ['e2e', 'human']);
+    assert.deepEqual(semantic.standards_refs, [
+      {
+        authority: 'wcag-2.2',
+        identifier: criterion,
+        url: `https://www.w3.org/TR/WCAG22/#${slug}`,
+        normative: true,
+        level
+      },
+      {
+        authority: 'wcag-2.2-understanding',
+        identifier: criterion,
+        url: `https://www.w3.org/WAI/WCAG22/Understanding/${slug}.html`,
+        normative: false,
+        level
+      }
+    ]);
+  }
+
+  assert.match(semanticById(data, 'semantics.dragging-alternative').requirement, /single-pointer method that does not require dragging/);
+  assert.match(semanticById(data, 'semantics.consistent-help').requirement, /same serialized order/);
+  assert.match(semanticById(data, 'semantics.redundant-entry').requirement, /auto-populated or available to select/);
+  assert.match(semanticById(data, 'semantics.accessible-authentication').requirement, /pasting a complete one-time code/);
+});
+
+test('Phase 2 semantic-gap rules use stable IDs, complete proof lanes, and paired WCAG references', async () => {
+  const data = await loadStandards();
+  assert.equal(phaseTwoSemantics.length, 21);
+
+  for (const [id, criterion, level, slug, proof] of phaseTwoSemantics) {
+    const semantic = semanticById(data, id);
+    assert.deepEqual(semantic.proof, proof, `${id} has incorrect proof routing`);
+    assert.deepEqual(semantic.standards_refs.filter(({ authority }) => authority.startsWith('wcag-2.2')), [
+      {
+        authority: 'wcag-2.2',
+        identifier: criterion,
+        url: `https://www.w3.org/TR/WCAG22/#${slug}`,
+        normative: true,
+        level,
+      },
+      {
+        authority: 'wcag-2.2-understanding',
+        identifier: criterion,
+        url: `https://www.w3.org/WAI/WCAG22/Understanding/${slug}.html`,
+        normative: false,
+        level,
+      },
+    ]);
+  }
+
+  const requiredDetails = {
+    'semantics.contrast-minimum': ['4.5:1', '3:1', 'inactive user interface component', 'logo or brand name'],
+    'semantics.reflow': ['320 CSS pixels', '256 CSS pixels', 'two-dimensional layout'],
+    'semantics.non-text-contrast': ['3:1', 'inactive components', 'unmodified user agent', 'essential'],
+    'semantics.text-spacing': ['1.5 times', '2 times', '0.12 times', '0.16 times', 'language or script'],
+    'semantics.content-on-hover-or-focus': ['dismissed', 'pointer moves over it', 'information becomes invalid', 'controlled by the user agent'],
+    'semantics.character-key-shortcuts': ['turn the shortcut off', 'remap', 'has focus'],
+    'semantics.timing-adjustable': ['ten times', '20 seconds', 'real-time event', 'essential', '20 hours'],
+    'semantics.bypass-blocks': ['bypass blocks of content', 'repeat across multiple web pages'],
+    'semantics.page-title': ['title that describes its topic or purpose'],
+    'semantics.focus-order': ['navigated sequentially', 'affects meaning or operation', 'order that preserves meaning and operability'],
+    'semantics.link-purpose': ['link text alone', 'programmatically determined link context', 'ambiguous to users in general'],
+    'semantics.multiple-ways': ['result of, or a step in, a process'],
+    'semantics.pointer-gestures': ['multipoint or path-based gesture', 'single pointer without a path-based gesture', 'essential', 'user agent or assistive technology'],
+    'semantics.pointer-cancellation': ['down-event', 'up-event', 'abort', 'undo', 'reverse', 'essential'],
+    'semantics.motion-actuation': ['user interface components', 'disabled', 'accessibility-supported interface', 'essential'],
+    'semantics.language.page': ['default human language', 'programmatically determined'],
+    'semantics.language.parts': ['proper names', 'technical terms', 'indeterminate language', 'vernacular'],
+    'semantics.context-change.focus': ['receiving focus', 'does not initiate a change of context'],
+    'semantics.context-change.input': ['advised of that behavior before using the component'],
+    'semantics.consistent-navigation': ['same relative order', 'unless the user initiates'],
+    'semantics.consistent-identification': ['same functionality', 'consistently throughout a set of web pages'],
+  };
+  for (const [id, details] of Object.entries(requiredDetails)) {
+    const requirement = semanticById(data, id).requirement;
+    for (const detail of details) assert.ok(requirement.includes(detail), `${id} requirement omits ${detail}`);
+  }
+});
+
+test('Phase 3 semantics remain complete within the expanded schema-4 catalog', async () => {
+  const data = await loadStandards();
+  assert.equal(phaseThreeSemantics.length, 18);
+  assert.deepEqual({
+    semantics: data.semantics.length,
+    patterns: data.patterns.length,
+    applicabilityRows: data.matrix.rows.length,
+    facts: Object.keys(data.facts.facts).length,
+    uiBindings: data.uiDesignBrainBindings.bindings.length,
+  }, {
+    semantics: 79,
+    patterns: 34,
+    applicabilityRows: 38,
+    facts: 47,
+    uiBindings: 82,
+  });
+
+  for (const [id, criterion, level, slug, proof] of phaseThreeSemantics) {
+    const semantic = semanticById(data, id);
+    assert.equal(semantic.version, '1.0.0');
+    assert.deepEqual(semantic.proof, proof, `${id} has incorrect proof routing`);
+    assert.deepEqual(semantic.standards_refs, [
+      {
+        authority: 'wcag-2.2',
+        identifier: criterion,
+        url: `https://www.w3.org/TR/WCAG22/#${slug}`,
+        normative: true,
+        level,
+      },
+      {
+        authority: 'wcag-2.2-understanding',
+        identifier: criterion,
+        url: `https://www.w3.org/WAI/WCAG22/Understanding/${slug}.html`,
+        normative: false,
+        level,
+      },
+    ]);
+  }
+
+  const requiredDetails = {
+    'semantics.non-text-content': ['controls and inputs', 'time-based media', 'tests or exercises', 'specific sensory experience', 'CAPTCHA', 'alternative forms', 'pure decoration'],
+    'semantics.media.prerecorded-audio-video-only-alternatives': ['prerecorded audio-only', 'equivalent information', 'prerecorded video-only', 'audio track', 'media alternative for text', 'clearly labeled'],
+    'semantics.media.captions-prerecorded': ['all prerecorded audio content', 'synchronized media', 'media alternative for text', 'clearly labeled'],
+    'semantics.media.audio-description-or-alternative-prerecorded': ['either an alternative for time-based media or audio description', 'prerecorded video content', 'media alternative for text', 'clearly labeled'],
+    'semantics.media.captions-live': ['all live audio content', 'synchronized media'],
+    'semantics.media.audio-description-prerecorded': ['audio description', 'all prerecorded video content', 'synchronized media'],
+    'semantics.info-relationships': ['Information, structure, and relationships', 'programmatically determined', 'available in text'],
+    'semantics.meaningful-sequence': ['sequence', 'affects its meaning', 'correct reading sequence', 'programmatically determined'],
+    'semantics.sensory-characteristics': ['shape', 'color', 'size', 'visual location', 'orientation', 'sound'],
+    'semantics.orientation': ['portrait', 'landscape', 'essential'],
+    'semantics.input-purpose': ['collects information about the user', 'WCAG Input Purposes', 'technology supports'],
+    'semantics.use-of-color': ['only visual means', 'convey information', 'indicate an action', 'prompt a response', 'distinguish a visual element'],
+    'semantics.audio-control': ['automatically', 'more than three seconds', 'pause or stop', 'independently from the overall system volume'],
+    'semantics.resize-text': ['captions', 'images of text', 'without assistive technology', '200 percent', 'without loss of content or functionality'],
+    'semantics.images-of-text': ['use text rather than images of text', 'visually customized', 'essential', 'Logotypes'],
+    'semantics.flash-threshold': ['more than three times', 'one-second period', 'general flash threshold', 'red flash threshold', 'entire page'],
+    'semantics.headings-labels-purpose': ['Headings and labels', 'topic or purpose'],
+    'semantics.input-labels-instructions': ['labels or instructions', 'requires user input', 'data format', 'expected value', 'task-specific direction'],
+  };
+  for (const [id, details] of Object.entries(requiredDetails)) {
+    const requirement = semanticById(data, id).requirement;
+    for (const detail of details) assert.ok(requirement.includes(detail), `${id} requirement omits ${detail}`);
+  }
+});
+
+test('focus visibility and target size express the WCAG 2.2 AA requirements without AAA substitution', async () => {
+  const data = await loadStandards();
+  const focus = semanticById(data, 'semantics.focus.visible');
+  assert.deepEqual(
+    focus.standards_refs.filter(({ authority }) => authority === 'wcag-2.2').map(({ identifier, level }) => [identifier, level]),
+    [['2.4.11', 'AA'], ['2.4.7', 'AA']]
+  );
+  assert.deepEqual(
+    focus.standards_refs.filter(({ authority }) => authority === 'wcag-2.2-understanding').map(({ identifier, level }) => [identifier, level]),
+    [['2.4.11', 'AA'], ['2.4.7', 'AA']]
+  );
+  assert.match(focus.requirement, /not entirely hidden by author-created content/);
+
+  const target = semanticById(data, 'semantics.target-size');
+  assert.deepEqual(target.standards_refs.map(({ authority, identifier, level }) => [authority, identifier, level]), [
+    ['wcag-2.2', '2.5.8', 'AA'],
+    ['wcag-2.2-understanding', '2.5.8', 'AA']
+  ]);
+  for (const detail of ['axis-aligned 24 by 24 CSS pixel square', '24 CSS pixel diameter circle', 'centered on its bounding box', 'does not intersect another target', 'equivalent control on the same page', 'line-height of non-target text', 'unmodified user agent', 'essential', 'legally required for the information being conveyed']) {
+    assert.ok(target.requirement.includes(detail), `target-size requirement omits ${detail}`);
+  }
+  assert.doesNotMatch(target.requirement, /44 by 44/);
+});
+
+test('existing covered mappings state the complete interaction obligation', async () => {
+  const data = await loadStandards();
+  const accessibleName = semanticById(data, 'semantics.accessible-name').requirement;
+  assert.match(accessibleName, /visible labels include text or images of text/);
+  assert.match(accessibleName, /accessible name contains the text presented visually/);
+
+  const nameRoleValue = semanticById(data, 'semantics.name-role-value').requirement;
+  assert.match(nameRoleValue, /name and role can be programmatically determined/);
+  assert.match(nameRoleValue, /states, properties, and values that users can set can be programmatically set/);
+  assert.match(nameRoleValue, /notification of changes.*available to user agents, including assistive technologies/);
+
+  const formError = semanticById(data, 'semantics.form-error').requirement;
+  assert.match(formError, /When an input error is automatically detected/);
+  assert.match(formError, /When correction suggestions are known/);
+  assert.match(formError, /jeopardize the security or purpose of the content/);
+
+  const consequentialAction = semanticById(data, 'semantics.consequential-action').requirement;
+  for (const detail of ['legal commitments', 'financial transactions', 'user-controllable data in data storage systems', 'user test responses', 'submissions are reversible', 'checked for input errors', 'review, confirm, and correct']) {
+    assert.ok(consequentialAction.includes(detail), `consequential-action requirement omits ${detail}`);
+  }
+
+  const motion = semanticById(data, 'semantics.motion-control').requirement.toLowerCase();
+  for (const detail of ['moving, blinking, or scrolling', 'more than five seconds', 'update frequency', 'unless essential']) {
+    assert.ok(motion.includes(detail), `motion-control requirement omits ${detail}`);
+  }
+
+  const status = semanticById(data, 'semantics.live-status').requirement;
+  assert.match(status, /Status messages that can be programmatically determined/);
+  assert.match(status, /without receiving focus/);
+});
+
+test('WCAG 2.2 applicability routes use dedicated facts and semantics', async () => {
+  const data = await loadStandards();
+  assert.deepEqual(data.facts.facts['interaction.has_dragging'], { type: 'boolean' });
+  assert.deepEqual(rowById(data, 'applicability.dragging-alternative'), {
+    id: 'applicability.dragging-alternative',
+    when: { equals: { fact: 'interaction.has_dragging', value: true } },
+    outcomes: ['semantics.dragging-alternative'],
+    evidence: ['e2e', 'human']
+  });
+  assert.deepEqual(rowById(data, 'applicability.page-context').outcomes, [
+    'semantics.headings',
+    'semantics.landmarks',
+    'semantics.bypass-blocks',
+    'semantics.focus-order',
+    'semantics.language.page',
+    'semantics.language.parts',
+    'semantics.multiple-ways',
+    'semantics.page-title',
+  ]);
+  assert.deepEqual(rowById(data, 'applicability.complex-pointer').outcomes, ['semantics.keyboard', 'semantics.pointer-gestures']);
+  assert.deepEqual(rowById(data, 'applicability.consistent-help').outcomes, ['semantics.consistent-help']);
+  assert.deepEqual(rowById(data, 'applicability.redundant-entry').outcomes, ['semantics.form-label', 'semantics.redundant-entry']);
+  assert.deepEqual(rowById(data, 'applicability.accessible-authentication').outcomes, ['semantics.accessible-authentication']);
+
+  const phaseTwoRows = [
+    ['applicability.visual-presentation', 'artifact.has_rendered_interface', ['semantics.contrast-minimum', 'semantics.non-text-contrast', 'semantics.reflow', 'semantics.text-spacing'], ['axe', 'e2e', 'human']],
+    ['applicability.link-purpose', 'content.has_links', ['semantics.link-purpose'], ['axe', 'human']],
+    ['applicability.hover-focus-content', 'interaction.has_hover_or_focus_content', ['semantics.content-on-hover-or-focus'], ['e2e', 'human']],
+    ['applicability.character-shortcuts', 'interaction.has_character_shortcuts', ['semantics.character-key-shortcuts'], ['e2e', 'human']],
+    ['applicability.pointer-cancellation', 'interaction.has_single_pointer_activation', ['semantics.pointer-cancellation'], ['e2e', 'human']],
+    ['applicability.motion-actuation', 'interaction.has_motion_actuation', ['semantics.motion-actuation'], ['e2e', 'human']],
+    ['applicability.timing-adjustable', 'interaction.has_time_limit', ['semantics.timing-adjustable'], ['e2e', 'human']],
+    ['applicability.context-change-focus', 'interaction.changes_context_on_focus', ['semantics.context-change.focus'], ['e2e', 'human']],
+    ['applicability.context-change-input', 'interaction.changes_context_on_input', ['semantics.context-change.input'], ['e2e', 'human']],
+    ['applicability.consistent-navigation', 'artifact.has_repeated_navigation_across_page_set', ['semantics.consistent-navigation'], ['e2e', 'human']],
+    ['applicability.consistent-identification', 'artifact.has_repeated_components_across_page_set', ['semantics.consistent-identification'], ['e2e', 'human']],
+  ];
+  for (const [id, fact, outcomes, evidence] of phaseTwoRows) {
+    assert.deepEqual(data.facts.facts[fact], { type: 'boolean' }, `${fact} must be boolean`);
+    assert.deepEqual(rowById(data, id), {
+      id,
+      when: { equals: { fact, value: true } },
+      outcomes,
+      evidence,
+    });
+  }
+
+  for (const fact of ['component.control_group_model', 'component.dialog_purpose']) {
+    assert.deepEqual(data.facts.facts[fact], { type: 'string' });
+  }
+  assert.deepEqual(data.facts.facts['component.toggle_model'], { type: 'string', values: ['button', 'checkbox', 'switch'] });
+});
+
+test('corrected WCAG applicability rules fail closed for every trigger state and invalid facts', async () => {
+  const data = await loadStandards();
+  const cases = [
+    ['applicability.dragging-alternative', 'interaction.has_dragging'],
+    ['applicability.consistent-help', 'artifact.has_repeated_help_across_page_set'],
+    ['applicability.redundant-entry', 'flow.repeats_entry'],
+    ['applicability.accessible-authentication', 'flow.has_authentication'],
+    ['applicability.visual-presentation', 'artifact.has_rendered_interface'],
+    ['applicability.link-purpose', 'content.has_links'],
+    ['applicability.hover-focus-content', 'interaction.has_hover_or_focus_content'],
+    ['applicability.character-shortcuts', 'interaction.has_character_shortcuts'],
+    ['applicability.pointer-cancellation', 'interaction.has_single_pointer_activation'],
+    ['applicability.motion-actuation', 'interaction.has_motion_actuation'],
+    ['applicability.timing-adjustable', 'interaction.has_time_limit'],
+    ['applicability.context-change-focus', 'interaction.changes_context_on_focus'],
+    ['applicability.context-change-input', 'interaction.changes_context_on_input'],
+    ['applicability.consistent-navigation', 'artifact.has_repeated_navigation_across_page_set'],
+    ['applicability.consistent-identification', 'artifact.has_repeated_components_across_page_set'],
+  ];
+
+  for (const [rowId, factId] of cases) {
+    const applicable = compileApplicability(data.matrix, data.facts, { [factId]: true }).find(({ id }) => id === rowId);
+    assert.deepEqual([applicable.trigger_state, applicable.resolution_state], ['applicable', 'resolved']);
+
+    const inapplicable = compileApplicability(data.matrix, data.facts, { [factId]: false }).find(({ id }) => id === rowId);
+    assert.deepEqual([inapplicable.trigger_state, inapplicable.resolution_state], ['not_applicable', 'skipped']);
+
+    const missing = compileApplicability(data.matrix, data.facts).find(({ id }) => id === rowId);
+    assert.deepEqual([missing.trigger_state, missing.resolution_state], ['unobserved', 'needs_input']);
+
+    assert.throws(
+      () => compileApplicability(data.matrix, data.facts, { [factId]: 'true' }),
+      new RegExp(`Observed value for ${factId.replaceAll('.', '\\.') } must be boolean`),
+    );
+  }
+});
+
+test('Phase 3 applicability uses broad safeguards plus precise media and input discriminators', async () => {
+  const data = await loadStandards();
+  const phaseThreeFacts = [
+    'component.has_user_information_fields',
+    'content.has_autoplay_audio_over_three_seconds',
+    'content.has_live_synchronized_audio',
+    'content.has_prerecorded_audio_only',
+    'content.has_prerecorded_synchronized_audio',
+    'content.has_prerecorded_synchronized_video',
+    'content.has_prerecorded_video_only',
+  ];
+  for (const factId of phaseThreeFacts) {
+    assert.deepEqual(data.facts.facts[factId], { type: 'boolean' });
+  }
+
+  const broadRows = [
+    ['applicability.non-text-content-completeness', 'content.has_non_text', ['semantics.non-text-content', 'semantics.images-of-text'], ['axe', 'human']],
+    ['applicability.page-content-structure', 'artifact.page_context', ['semantics.info-relationships', 'semantics.meaningful-sequence', 'semantics.sensory-characteristics', 'semantics.headings-labels-purpose'], ['axe', 'e2e', 'human']],
+    ['applicability.rendered-content-safeguards', 'artifact.has_rendered_interface', ['semantics.orientation', 'semantics.use-of-color', 'semantics.resize-text', 'semantics.flash-threshold'], ['e2e', 'human']],
+    ['applicability.input-labels-instructions', 'component.has_form_fields', ['semantics.input-labels-instructions'], ['axe', 'human']],
+    ['applicability.prerecorded-synchronized-audio', 'content.has_prerecorded_synchronized_audio', ['semantics.media.captions-prerecorded'], ['e2e', 'human']],
+    ['applicability.prerecorded-synchronized-video', 'content.has_prerecorded_synchronized_video', ['semantics.media.audio-description-or-alternative-prerecorded', 'semantics.media.audio-description-prerecorded'], ['e2e', 'human']],
+    ['applicability.live-synchronized-audio', 'content.has_live_synchronized_audio', ['semantics.media.captions-live'], ['e2e', 'human']],
+    ['applicability.autoplay-audio-control', 'content.has_autoplay_audio_over_three_seconds', ['semantics.audio-control'], ['e2e', 'human']],
+    ['applicability.user-information-input-purpose', 'component.has_user_information_fields', ['semantics.input-purpose'], ['axe', 'human']],
+  ];
+  for (const [id, fact, outcomes, evidence] of broadRows) {
+    assert.deepEqual(rowById(data, id), { id, when: { equals: { fact, value: true } }, outcomes, evidence });
+  }
+
+  assert.deepEqual(rowById(data, 'applicability.prerecorded-audio-video-only'), {
+    id: 'applicability.prerecorded-audio-video-only',
+    when: {
+      any: [
+        { equals: { fact: 'content.has_prerecorded_audio_only', value: true } },
+        { equals: { fact: 'content.has_prerecorded_video_only', value: true } },
+      ],
+    },
+    outcomes: ['semantics.media.prerecorded-audio-video-only-alternatives'],
+    evidence: ['e2e', 'human'],
+  });
+});
+
+test('Phase 3 applicability fails closed and keeps media modes independent', async () => {
+  const data = await loadStandards();
+  const singleFactRows = [
+    ['applicability.non-text-content-completeness', 'content.has_non_text'],
+    ['applicability.page-content-structure', 'artifact.page_context'],
+    ['applicability.rendered-content-safeguards', 'artifact.has_rendered_interface'],
+    ['applicability.input-labels-instructions', 'component.has_form_fields'],
+    ['applicability.prerecorded-synchronized-audio', 'content.has_prerecorded_synchronized_audio'],
+    ['applicability.prerecorded-synchronized-video', 'content.has_prerecorded_synchronized_video'],
+    ['applicability.live-synchronized-audio', 'content.has_live_synchronized_audio'],
+    ['applicability.autoplay-audio-control', 'content.has_autoplay_audio_over_three_seconds'],
+    ['applicability.user-information-input-purpose', 'component.has_user_information_fields'],
+  ];
+
+  for (const [rowId, factId] of singleFactRows) {
+    const applicable = compileApplicability(data.matrix, data.facts, { [factId]: true }).find(({ id }) => id === rowId);
+    assert.deepEqual([applicable.trigger_state, applicable.resolution_state], ['applicable', 'resolved']);
+    const inapplicable = compileApplicability(data.matrix, data.facts, { [factId]: false }).find(({ id }) => id === rowId);
+    assert.deepEqual([inapplicable.trigger_state, inapplicable.resolution_state], ['not_applicable', 'skipped']);
+    const missing = compileApplicability(data.matrix, data.facts).find(({ id }) => id === rowId);
+    assert.deepEqual([missing.trigger_state, missing.resolution_state], ['unobserved', 'needs_input']);
+    assert.throws(
+      () => compileApplicability(data.matrix, data.facts, { [factId]: 'true' }),
+      new RegExp(`Observed value for ${factId.replaceAll('.', '\\.') } must be boolean`),
+    );
+  }
+
+  const audioVideoRow = (values) => compileApplicability(data.matrix, data.facts, values)
+    .find(({ id }) => id === 'applicability.prerecorded-audio-video-only');
+  for (const values of [
+    { 'content.has_prerecorded_audio_only': true, 'content.has_prerecorded_video_only': false },
+    { 'content.has_prerecorded_audio_only': false, 'content.has_prerecorded_video_only': true },
+    { 'content.has_prerecorded_audio_only': true, 'content.has_prerecorded_video_only': true },
+  ]) {
+    assert.deepEqual([audioVideoRow(values).trigger_state, audioVideoRow(values).resolution_state], ['applicable', 'resolved']);
+  }
+  assert.deepEqual(
+    [audioVideoRow({ 'content.has_prerecorded_audio_only': false, 'content.has_prerecorded_video_only': false }).trigger_state,
+      audioVideoRow({ 'content.has_prerecorded_audio_only': false, 'content.has_prerecorded_video_only': false }).resolution_state],
+    ['not_applicable', 'skipped'],
+  );
+  assert.deepEqual(
+    [audioVideoRow({ 'content.has_prerecorded_audio_only': true }).trigger_state,
+      audioVideoRow({ 'content.has_prerecorded_audio_only': true }).resolution_state],
+    ['unobserved', 'needs_input'],
+  );
+  for (const factId of ['content.has_prerecorded_audio_only', 'content.has_prerecorded_video_only']) {
+    assert.throws(
+      () => audioVideoRow({
+        'content.has_prerecorded_audio_only': false,
+        'content.has_prerecorded_video_only': false,
+        [factId]: 'true',
+      }),
+      new RegExp(`Observed value for ${factId.replaceAll('.', '\\.') } must be boolean`),
+    );
+  }
+
+  const mediaRoutes = new Map([
+    ['content.has_prerecorded_audio_only', 'applicability.prerecorded-audio-video-only'],
+    ['content.has_prerecorded_video_only', 'applicability.prerecorded-audio-video-only'],
+    ['content.has_prerecorded_synchronized_audio', 'applicability.prerecorded-synchronized-audio'],
+    ['content.has_prerecorded_synchronized_video', 'applicability.prerecorded-synchronized-video'],
+    ['content.has_live_synchronized_audio', 'applicability.live-synchronized-audio'],
+    ['content.has_autoplay_audio_over_three_seconds', 'applicability.autoplay-audio-control'],
+  ]);
+  const mediaFactIds = [...mediaRoutes.keys()];
+  const mediaRowIds = new Set(mediaRoutes.values());
+  for (const activeFactId of mediaFactIds) {
+    const values = Object.fromEntries(mediaFactIds.map((factId) => [factId, factId === activeFactId]));
+    const results = compileApplicability(data.matrix, data.facts, values);
+    const activeRowId = mediaRoutes.get(activeFactId);
+    assert.equal(results.find(({ id }) => id === activeRowId).resolution_state, 'resolved', `${activeFactId} must activate ${activeRowId}`);
+    for (const rowId of mediaRowIds) {
+      if (rowId !== activeRowId) assert.equal(results.find(({ id }) => id === rowId).resolution_state, 'skipped', `${activeFactId} must not activate ${rowId}`);
+    }
+  }
+});

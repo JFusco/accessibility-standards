@@ -1,0 +1,179 @@
+{
+  "version": 1,
+  "wikiRoot": "wiki",
+  "counts": {
+    "nodes": 7,
+    "edges": 10,
+    "byType": {
+      "index": 3,
+      "journal": 1,
+      "plan": 1,
+      "topic": 2
+    }
+  },
+  "nodes": [
+    {
+      "id": "wiki/INDEX.md",
+      "label": "Context wiki",
+      "type": "index",
+      "aliases": [],
+      "githubRefs": [],
+      "bytes": 1618,
+      "degree": 5,
+      "x": 1,
+      "y": 0,
+      "size": 12
+    },
+    {
+      "id": "wiki/journal/2026-11-23-standalone-launch.md",
+      "label": "Standalone project launch",
+      "type": "journal",
+      "aliases": [],
+      "githubRefs": [
+        {
+          "repository": "jfusco/accessibility-standards",
+          "kind": "issue",
+          "number": 1,
+          "url": "https://github.com/jfusco/accessibility-standards/issues/1"
+        }
+      ],
+      "bytes": 944,
+      "degree": 3,
+      "x": -0.222521,
+      "y": 0.974928,
+      "size": 8
+    },
+    {
+      "id": "wiki/MECHANICS.md",
+      "label": "Wiki mechanics",
+      "type": "index",
+      "aliases": [],
+      "githubRefs": [],
+      "bytes": 2928,
+      "degree": 2,
+      "x": 0.62349,
+      "y": 0.781831,
+      "size": 12
+    },
+    {
+      "id": "wiki/plans/2026-11-23-issue-d1ddd2d68c.md",
+      "label": "2026-11-23-issue-d1ddd2d68c",
+      "type": "plan",
+      "aliases": [],
+      "githubRefs": [],
+      "bytes": 1437,
+      "degree": 2,
+      "x": -0.900969,
+      "y": 0.433884,
+      "size": 8
+    },
+    {
+      "id": "wiki/plans/INDEX.md",
+      "label": "Plan ledger",
+      "type": "index",
+      "aliases": [],
+      "githubRefs": [],
+      "bytes": 522,
+      "degree": 3,
+      "x": -0.900969,
+      "y": -0.433884,
+      "size": 12
+    },
+    {
+      "id": "wiki/topics/project-maintenance.md",
+      "label": "Project maintenance",
+      "type": "topic",
+      "aliases": [],
+      "githubRefs": [],
+      "bytes": 598,
+      "degree": 2,
+      "x": -0.222521,
+      "y": -0.974928,
+      "size": 8
+    },
+    {
+      "id": "wiki/topics/standalone-contracts.md",
+      "label": "Standalone accessibility contracts",
+      "type": "topic",
+      "aliases": [],
+      "githubRefs": [],
+      "bytes": 1472,
+      "degree": 3,
+      "x": 0.62349,
+      "y": -0.781831,
+      "size": 8
+    }
+  ],
+  "edges": [
+    {
+      "id": "28e1625c3ff149b3",
+      "source": "wiki/journal/2026-11-23-standalone-launch.md",
+      "target": "wiki/topics/project-maintenance.md",
+      "type": "topic",
+      "relation": "topic"
+    },
+    {
+      "id": "28f075b44a44c83c",
+      "source": "wiki/plans/INDEX.md",
+      "target": "wiki/plans/2026-11-23-issue-d1ddd2d68c.md",
+      "type": "link",
+      "relation": "link"
+    },
+    {
+      "id": "355b085344694472",
+      "source": "wiki/INDEX.md",
+      "target": "wiki/MECHANICS.md",
+      "type": "link",
+      "relation": "link"
+    },
+    {
+      "id": "53a94a6b135ab58a",
+      "source": "wiki/INDEX.md",
+      "target": "wiki/topics/project-maintenance.md",
+      "type": "link",
+      "relation": "link"
+    },
+    {
+      "id": "6054eb89bc06ebe2",
+      "source": "wiki/INDEX.md",
+      "target": "wiki/plans/INDEX.md",
+      "type": "link",
+      "relation": "link"
+    },
+    {
+      "id": "6c0aa5619613f1ea",
+      "source": "wiki/INDEX.md",
+      "target": "wiki/journal/2026-11-23-standalone-launch.md",
+      "type": "link",
+      "relation": "link"
+    },
+    {
+      "id": "ab5fa95fd6b135bd",
+      "source": "wiki/INDEX.md",
+      "target": "wiki/topics/standalone-contracts.md",
+      "type": "link",
+      "relation": "link"
+    },
+    {
+      "id": "dc477bef96e3a2fc",
+      "source": "wiki/plans/2026-11-23-issue-d1ddd2d68c.md",
+      "target": "wiki/topics/standalone-contracts.md",
+      "type": "topic",
+      "relation": "topic"
+    },
+    {
+      "id": "e56d58329e2a8982",
+      "source": "wiki/MECHANICS.md",
+      "target": "wiki/plans/INDEX.md",
+      "type": "link",
+      "relation": "link"
+    },
+    {
+      "id": "f790efc4d32a9774",
+      "source": "wiki/journal/2026-11-23-standalone-launch.md",
+      "target": "wiki/topics/standalone-contracts.md",
+      "type": "topic",
+      "relation": "topic"
+    }
+  ]
+}

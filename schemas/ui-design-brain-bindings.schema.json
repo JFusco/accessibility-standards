@@ -1,0 +1,1039 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ui-design-brain-bindings.schema.json",
+  "type": "object",
+  "required": [
+    "version",
+    "source",
+    "bindings"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "integer",
+      "const": 1
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "package",
+        "package_version",
+        "catalog_authority_version",
+        "repository",
+        "manifest_path",
+        "manifest_digest",
+        "manifest_file_sha256",
+        "source_digest",
+        "pattern_count"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "package": {
+          "const": "ui-design-brain"
+        },
+        "package_version": {
+          "const": "1.18.9"
+        },
+        "catalog_authority_version": {
+          "const": "1.18.0"
+        },
+        "repository": {
+          "const": "https://github.com/JFusco/ui-design-brain"
+        },
+        "manifest_path": {
+          "const": "skills/ui-design-brain/catalog-manifest.json"
+        },
+        "manifest_digest": {
+          "const": "sha256:f94db7c94f99d74983078bdf35e5854584fdd7875af1bf7c7d6fbcb17b459ab5"
+        },
+        "manifest_file_sha256": {
+          "const": "7682fbb6436f991566c27451542b0adbd3908e2ca70f104d37e0f98203760096"
+        },
+        "source_digest": {
+          "const": "sha256:68827907d7431d74191a18cb2fc256c5f791e272f269a2d439b15624848bb28a"
+        },
+        "pattern_count": {
+          "const": 82
+        }
+      }
+    },
+    "bindings": {
+      "type": "array",
+      "minItems": 82,
+      "maxItems": 82,
+      "items": {
+        "type": "object",
+        "required": [
+          "ui_pattern_id",
+          "classification"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "ui_pattern_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "classification": {
+            "enum": [
+              "direct",
+              "candidate",
+              "baseline-only"
+            ]
+          },
+          "pattern_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^pattern\\."
+            },
+            "uniqueItems": true
+          },
+          "baseline_semantic_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^semantics\\."
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "discriminator_facts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "candidates": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "pattern_id",
+                "when"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "pattern_id": {
+                  "type": "string",
+                  "pattern": "^pattern\\."
+                },
+                "when": {
+                  "type": "object",
+                  "minProperties": 1,
+                  "maxProperties": 1
+                }
+              }
+            }
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "classification": {
+                  "const": "direct"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "pattern_ids"
+              ],
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "candidates"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "discriminator_facts"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "classification": {
+                  "const": "candidate"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "discriminator_facts",
+                "candidates"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "classification": {
+                  "const": "baseline-only"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "baseline_semantic_ids"
+              ],
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "pattern_ids"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "candidates"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "discriminator_facts"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "allOf": [
+        {
+          "prefixItems": [
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "accordion"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "alert"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "avatar"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "badge"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "breadcrumbs"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "button"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "button-group"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "card"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "carousel"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "checkbox"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "color-picker"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "combobox"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "comparison-table"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "context-menu"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "date-input"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "datepicker"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "drawer"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "dropdown-menu"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "empty-state"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "error-message"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "eyebrow"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "fieldset"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "file"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "file-upload"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "filter"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "footer"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "form"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "gauge-chart"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "header"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "heading"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "helper-text"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "hero"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "icon"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "image"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "in-page-navigation"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "label"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "link"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "list"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "logo-bar"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "marquee"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "masthead"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "media-object"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "mega-menu"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "modal"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "navigation"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "number-input"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "pagination"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "pie-chart"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "popover"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "progress-bar"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "progress-indicator"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "quote"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "radio-button"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "rating"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "rich-text"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "rich-text-editor"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "search-input"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "search-overlay"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "section-header"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "segmented-control"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "select"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "separator"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "sidebar"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "skeleton"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "skip-link"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "slider"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "spinner"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "stack"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "stat"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "stepper"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "table"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "tabs"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "text-input"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "textarea"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "toast"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "toggle"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "tooltip"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "tree-view"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "utility-bar"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "video"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "visually-hidden"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            },
+            {
+              "properties": {
+                "ui_pattern_id": {
+                  "const": "wizard"
+                }
+              },
+              "required": [
+                "ui_pattern_id"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
