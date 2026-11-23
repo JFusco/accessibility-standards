@@ -8,7 +8,9 @@ const api = (args, payload) => execFileSync('gh', ['api', ...args, ...(payload ?
   input: payload && JSON.stringify(payload), encoding: 'utf8',
 });
 const pages = JSON.parse(api(['--paginate', '--slurp', `repos/${repo}/issues?state=all&per_page=100`]));
-const issues = pages.flat().filter(issue => !issue.pull_request);
+// This workflow creates tracking issues with the repository's GITHUB_TOKEN.
+const issues = pages.flat().filter(issue => !issue.pull_request
+  && issue.user?.type === 'Bot' && issue.user.login === 'github-actions[bot]');
 const withoutScanLink = body => body.replace(/\n\[Scan evidence\]\([^)]+\)\.\n/, '\n');
 for (const row of documents.filter(row => row.status !== 'current')) {
   const failure = row.status === 'unavailable';

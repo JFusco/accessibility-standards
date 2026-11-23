@@ -14,6 +14,7 @@ const packedConsumerVerifier = new URL('../../scripts/verify-packed-consumer.mjs
 const root = fileURLToPath(new URL('../..', import.meta.url));
 const require = createRequire(import.meta.url);
 const { releasePayload } = require('../../scripts/notify-pin-courier.cjs');
+const scannerAuthor = { type: 'Bot', login: 'github-actions[bot]' };
 
 async function ghFixture(t) {
   const directory = await mkdtemp(join(tmpdir(), 'a11y-gh-'));
@@ -85,7 +86,7 @@ test('a recurring retrieval failure reopens its review issue once', async t => {
   const url = 'https://www.w3.org/TR/WCAG22/';
   const row = { url, status: 'unavailable', error: 'Timeout', locators: { '': ['semantics.keyboard'] } };
   const [{ body: initial }] = await scan('index', row);
-  const issue = { number: 42, state: 'closed', body: initial.body };
+  const issue = { number: 42, state: 'closed', user: scannerAuthor, body: initial.body };
   const [reopened, ...otherWrites] = await scan('index', row, [issue], '2');
   assert.deepEqual(otherWrites, []);
   assert.deepEqual(reopened.args, ['api', '--method', 'PATCH', 'repos/JFusco/accessibility-standards/issues/42', '--input', '-']);
@@ -99,9 +100,13 @@ test('detailed scans enrich existing source issues and retain that detail on sub
   const url = 'https://www.w3.org/TR/WCAG22/';
   const row = { url, status: 'changed', sha256: 'new-digest', baseline: 'old-digest', missing_anchors: [], locators: { '': ['semantics.keyboard'] } };
   const [{ body: initial }] = await scan('index', row);
-  const issue = { number: 42, state: 'open', body: initial.body };
+  const issue = { number: 42, state: 'open', user: scannerAuthor, body: initial.body };
   const detailed = { ...row, locators: { ...row.locators, keyboard: ['semantics.keyboard'] } };
-  const [update, ...otherWrites] = await scan('full', detailed, [issue], '2');
+  const contributorIssue = { ...issue, number: 19, user: { type: 'User', login: 'contributor' } };
+  const [created, ...extra] = await scan('full', detailed, [contributorIssue], '2');
+  assert.deepEqual(extra, []);
+  assert.deepEqual(created.args, ['api', '--method', 'POST', 'repos/JFusco/accessibility-standards/issues', '--input', '-']);
+  const [update, ...otherWrites] = await scan('full', detailed, [contributorIssue, issue], '2');
   assert.deepEqual(otherWrites, []);
   assert.deepEqual(update.args, ['api', '--method', 'PATCH', 'repos/JFusco/accessibility-standards/issues/42', '--input', '-']);
   assert.ok(update.body.body.includes(`${url}#keyboard — semantics.keyboard`));
