@@ -1,5 +1,7 @@
 ---
 topics: [project-maintenance]
+issue: 'https://github.com/jfusco/accessibility-standards/issues/4'
+issues: ['https://github.com/jfusco/accessibility-standards/issues/4']
 ---
 # Accept the APG patterns index baseline
 
