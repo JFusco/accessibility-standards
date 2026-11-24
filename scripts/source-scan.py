@@ -6,12 +6,14 @@ from html.parser import HTMLParser
 from http.client import HTTPException
 import json
 from pathlib import Path
+import re
 from urllib.parse import urldefrag, urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 ROOT = Path(__file__).resolve().parents[1]
 HOSTS = {'www.w3.org', 'html.spec.whatwg.org'}
 LIMIT = 16 * 1024 * 1024
+TITLE_CODE = re.compile(r'</?code\s*>', re.IGNORECASE)
 
 def official(url):
     parsed = urlsplit(url)
@@ -29,17 +31,25 @@ class DocumentText(HTMLParser):
         self.parts = []
         self.hidden = 0
         self.anchors = set()
+        self.in_title = False
     def handle_starttag(self, tag, attrs):
+        if tag == 'title':
+            self.in_title = True
         if tag in ('script', 'style', 'template'):
             self.hidden += 1
         for key, value in attrs:
             if key == 'id' or (tag == 'a' and key == 'name'):
                 self.anchors.add(value)
     def handle_endtag(self, tag):
+        if tag == 'title':
+            self.in_title = False
         if tag in ('script', 'style', 'template') and self.hidden:
             self.hidden -= 1
     def handle_data(self, data):
         if not self.hidden:
+            # Python 3.14 preserves the APG's literal inline code tags in title text.
+            if self.in_title:
+                data = TITLE_CODE.sub(' ', data)
             self.parts.extend(data.split())
 
 def inventory(mode):
