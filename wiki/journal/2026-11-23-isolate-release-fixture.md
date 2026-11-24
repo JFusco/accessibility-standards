@@ -1,5 +1,7 @@
 ---
 topics: [project-maintenance]
+issue: 'https://github.com/jfusco/accessibility-standards/issues/11'
+issues: ['https://github.com/jfusco/accessibility-standards/issues/11']
 ---
 # Isolate the release preflight fixture
 
