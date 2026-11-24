@@ -25,6 +25,16 @@ class DocumentTitleTest(unittest.TestCase):
         parser.handle_endtag('title')
         self.assertEqual(parser.parts, ['Use', 'presentation', 'here'])
 
+        legacy_parser = DocumentText()
+        legacy_parser.handle_starttag('title', [])
+        legacy_parser.handle_data('Use')
+        legacy_parser.handle_starttag('code', [])
+        legacy_parser.handle_data('presentation')
+        legacy_parser.handle_endtag('code')
+        legacy_parser.handle_data('here')
+        legacy_parser.handle_endtag('title')
+        self.assertEqual(legacy_parser.parts, parser.parts)
+
 
 if __name__ == '__main__':
     unittest.main()
