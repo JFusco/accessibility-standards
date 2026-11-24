@@ -2,11 +2,11 @@
   "version": 1,
   "wikiRoot": "wiki",
   "counts": {
-    "nodes": 9,
-    "edges": 12,
+    "nodes": 10,
+    "edges": 13,
     "byType": {
       "index": 3,
-      "journal": 3,
+      "journal": 4,
       "plan": 1,
       "topic": 2
     }
@@ -39,8 +39,8 @@
       ],
       "bytes": 572,
       "degree": 1,
-      "x": 0.173648,
-      "y": 0.984808,
+      "x": 0.309017,
+      "y": 0.951057,
       "size": 8
     },
     {
@@ -64,8 +64,8 @@
       ],
       "bytes": 599,
       "degree": 1,
-      "x": -0.5,
-      "y": 0.866025,
+      "x": -0.309017,
+      "y": 0.951057,
       "size": 8
     },
     {
@@ -83,8 +83,27 @@
       ],
       "bytes": 944,
       "degree": 3,
-      "x": -0.939693,
-      "y": 0.34202,
+      "x": -0.809017,
+      "y": 0.587785,
+      "size": 8
+    },
+    {
+      "id": "wiki/journal/2026-11-24-verify-public-adoption.md",
+      "label": "Verify adoption from the public 1.0.0 release",
+      "type": "journal",
+      "aliases": [],
+      "githubRefs": [
+        {
+          "repository": "jfusco/accessibility-standards",
+          "kind": "issue",
+          "number": 3,
+          "url": "https://github.com/jfusco/accessibility-standards/issues/3"
+        }
+      ],
+      "bytes": 926,
+      "degree": 1,
+      "x": -1,
+      "y": 0,
       "size": 8
     },
     {
@@ -95,8 +114,8 @@
       "githubRefs": [],
       "bytes": 2928,
       "degree": 2,
-      "x": 0.766044,
-      "y": 0.642788,
+      "x": 0.809017,
+      "y": 0.587785,
       "size": 12
     },
     {
@@ -107,8 +126,8 @@
       "githubRefs": [],
       "bytes": 1437,
       "degree": 2,
-      "x": -0.939693,
-      "y": -0.34202,
+      "x": -0.809017,
+      "y": -0.587785,
       "size": 8
     },
     {
@@ -119,8 +138,8 @@
       "githubRefs": [],
       "bytes": 522,
       "degree": 3,
-      "x": -0.5,
-      "y": -0.866025,
+      "x": -0.309017,
+      "y": -0.951057,
       "size": 12
     },
     {
@@ -131,8 +150,8 @@
       "githubRefs": [],
       "bytes": 598,
       "degree": 4,
-      "x": 0.173648,
-      "y": -0.984808,
+      "x": 0.309017,
+      "y": -0.951057,
       "size": 8
     },
     {
@@ -142,9 +161,9 @@
       "aliases": [],
       "githubRefs": [],
       "bytes": 1472,
-      "degree": 3,
-      "x": 0.766044,
-      "y": -0.642788,
+      "degree": 4,
+      "x": 0.809017,
+      "y": -0.587785,
       "size": 8
     }
   ],
@@ -225,6 +244,13 @@
       "target": "wiki/plans/INDEX.md",
       "type": "link",
       "relation": "link"
+    },
+    {
+      "id": "f14eee52a0d9939e",
+      "source": "wiki/journal/2026-11-24-verify-public-adoption.md",
+      "target": "wiki/topics/standalone-contracts.md",
+      "type": "topic",
+      "relation": "topic"
     },
     {
       "id": "f790efc4d32a9774",
