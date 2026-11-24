@@ -13,6 +13,11 @@ const {
   validateReleaseCommits,
 } = require('./check-release-commit.cjs');
 
+// A linked-worktree hook exports Git's repository context to its children.
+// The fixture and the reads under test must resolve their repository from cwd.
+const localGitVariables = execFileSync('git', ['rev-parse', '--local-env-vars'], { encoding: 'utf8' });
+for (const name of localGitVariables.trim().split(/\s+/u)) delete process.env[name];
+
 assert.deepEqual(validateReleaseCommit({ subject: 'feat(catalog): add official field types', body: '' }), []);
 assert.deepEqual(validateReleaseCommit({ subject: 'feat(schema)!: revise field identity', body: '' }), []);
 assert.match(
@@ -27,7 +32,7 @@ assert.match(
   /conventional type/,
 );
 
-const root = fs.mkdtempSync(path.join(os.tmpdir(), 'cms-field-vocabulary-release-preflight-'));
+const root = fs.mkdtempSync(path.join(os.tmpdir(), 'accessibility-standards-release-preflight-'));
 try {
   const git = (...args) => execFileSync('git', args, { cwd: root, stdio: 'ignore' });
   git('init', '-q');

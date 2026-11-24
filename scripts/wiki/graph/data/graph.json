@@ -2,11 +2,11 @@
   "version": 1,
   "wikiRoot": "wiki",
   "counts": {
-    "nodes": 7,
-    "edges": 10,
+    "nodes": 8,
+    "edges": 11,
     "byType": {
       "index": 3,
-      "journal": 1,
+      "journal": 2,
       "plan": 1,
       "topic": 2
     }
@@ -25,6 +25,25 @@
       "size": 12
     },
     {
+      "id": "wiki/journal/2026-11-23-isolate-release-fixture.md",
+      "label": "Isolate the release preflight fixture",
+      "type": "journal",
+      "aliases": [],
+      "githubRefs": [
+        {
+          "repository": "jfusco/accessibility-standards",
+          "kind": "issue",
+          "number": 11,
+          "url": "https://github.com/jfusco/accessibility-standards/issues/11"
+        }
+      ],
+      "bytes": 572,
+      "degree": 1,
+      "x": 0,
+      "y": 1,
+      "size": 8
+    },
+    {
       "id": "wiki/journal/2026-11-23-standalone-launch.md",
       "label": "Standalone project launch",
       "type": "journal",
@@ -39,8 +58,8 @@
       ],
       "bytes": 944,
       "degree": 3,
-      "x": -0.222521,
-      "y": 0.974928,
+      "x": -0.707107,
+      "y": 0.707107,
       "size": 8
     },
     {
@@ -51,8 +70,8 @@
       "githubRefs": [],
       "bytes": 2928,
       "degree": 2,
-      "x": 0.62349,
-      "y": 0.781831,
+      "x": 0.707107,
+      "y": 0.707107,
       "size": 12
     },
     {
@@ -63,8 +82,8 @@
       "githubRefs": [],
       "bytes": 1437,
       "degree": 2,
-      "x": -0.900969,
-      "y": 0.433884,
+      "x": -1,
+      "y": 0,
       "size": 8
     },
     {
@@ -75,8 +94,8 @@
       "githubRefs": [],
       "bytes": 522,
       "degree": 3,
-      "x": -0.900969,
-      "y": -0.433884,
+      "x": -0.707107,
+      "y": -0.707107,
       "size": 12
     },
     {
@@ -86,9 +105,9 @@
       "aliases": [],
       "githubRefs": [],
       "bytes": 598,
-      "degree": 2,
-      "x": -0.222521,
-      "y": -0.974928,
+      "degree": 3,
+      "x": 0,
+      "y": -1,
       "size": 8
     },
     {
@@ -99,8 +118,8 @@
       "githubRefs": [],
       "bytes": 1472,
       "degree": 3,
-      "x": 0.62349,
-      "y": -0.781831,
+      "x": 0.707107,
+      "y": -0.707107,
       "size": 8
     }
   ],
@@ -146,6 +165,13 @@
       "target": "wiki/journal/2026-11-23-standalone-launch.md",
       "type": "link",
       "relation": "link"
+    },
+    {
+      "id": "75e1b2a81001b980",
+      "source": "wiki/journal/2026-11-23-isolate-release-fixture.md",
+      "target": "wiki/topics/project-maintenance.md",
+      "type": "topic",
+      "relation": "topic"
     },
     {
       "id": "ab5fa95fd6b135bd",
