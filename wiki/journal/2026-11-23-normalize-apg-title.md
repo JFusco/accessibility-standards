@@ -1,5 +1,7 @@
 ---
 topics: [project-maintenance]
+issue: 'https://github.com/jfusco/accessibility-standards/issues/14'
+issues: ['https://github.com/jfusco/accessibility-standards/issues/14']
 ---
 # Normalize APG title markup
 
