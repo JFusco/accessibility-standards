@@ -2,11 +2,11 @@
   "version": 1,
   "wikiRoot": "wiki",
   "counts": {
-    "nodes": 10,
-    "edges": 13,
+    "nodes": 11,
+    "edges": 14,
     "byType": {
       "index": 3,
-      "journal": 4,
+      "journal": 5,
       "plan": 1,
       "topic": 2
     }
@@ -39,8 +39,8 @@
       ],
       "bytes": 572,
       "degree": 1,
-      "x": 0.309017,
-      "y": 0.951057,
+      "x": 0.415415,
+      "y": 0.909632,
       "size": 8
     },
     {
@@ -64,8 +64,8 @@
       ],
       "bytes": 599,
       "degree": 1,
-      "x": -0.309017,
-      "y": 0.951057,
+      "x": -0.142315,
+      "y": 0.989821,
       "size": 8
     },
     {
@@ -83,8 +83,8 @@
       ],
       "bytes": 944,
       "degree": 3,
-      "x": -0.809017,
-      "y": 0.587785,
+      "x": -0.654861,
+      "y": 0.75575,
       "size": 8
     },
     {
@@ -102,8 +102,27 @@
       ],
       "bytes": 634,
       "degree": 1,
-      "x": -1,
-      "y": 0,
+      "x": -0.959493,
+      "y": 0.281733,
+      "size": 8
+    },
+    {
+      "id": "wiki/journal/2026-11-24-review-apg-practices-index.md",
+      "label": "Accept the APG practices index baseline",
+      "type": "journal",
+      "aliases": [],
+      "githubRefs": [
+        {
+          "repository": "jfusco/accessibility-standards",
+          "kind": "issue",
+          "number": 5,
+          "url": "https://github.com/jfusco/accessibility-standards/issues/5"
+        }
+      ],
+      "bytes": 806,
+      "degree": 1,
+      "x": -0.959493,
+      "y": -0.281733,
       "size": 8
     },
     {
@@ -114,8 +133,8 @@
       "githubRefs": [],
       "bytes": 2928,
       "degree": 2,
-      "x": 0.809017,
-      "y": 0.587785,
+      "x": 0.841254,
+      "y": 0.540641,
       "size": 12
     },
     {
@@ -126,8 +145,8 @@
       "githubRefs": [],
       "bytes": 1437,
       "degree": 2,
-      "x": -0.809017,
-      "y": -0.587785,
+      "x": -0.654861,
+      "y": -0.75575,
       "size": 8
     },
     {
@@ -138,8 +157,8 @@
       "githubRefs": [],
       "bytes": 522,
       "degree": 3,
-      "x": -0.309017,
-      "y": -0.951057,
+      "x": -0.142315,
+      "y": -0.989821,
       "size": 12
     },
     {
@@ -149,9 +168,9 @@
       "aliases": [],
       "githubRefs": [],
       "bytes": 598,
-      "degree": 5,
-      "x": 0.309017,
-      "y": -0.951057,
+      "degree": 6,
+      "x": 0.415415,
+      "y": -0.909632,
       "size": 8
     },
     {
@@ -162,8 +181,8 @@
       "githubRefs": [],
       "bytes": 1472,
       "degree": 3,
-      "x": 0.809017,
-      "y": -0.587785,
+      "x": 0.841254,
+      "y": -0.540641,
       "size": 8
     }
   ],
@@ -234,6 +253,13 @@
     {
       "id": "afc6e4033eecd87f",
       "source": "wiki/journal/2026-11-24-review-apg-patterns-index.md",
+      "target": "wiki/topics/project-maintenance.md",
+      "type": "topic",
+      "relation": "topic"
+    },
+    {
+      "id": "c313d9974ce869fb",
+      "source": "wiki/journal/2026-11-24-review-apg-practices-index.md",
       "target": "wiki/topics/project-maintenance.md",
       "type": "topic",
       "relation": "topic"
