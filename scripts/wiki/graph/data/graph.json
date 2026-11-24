@@ -2,11 +2,11 @@
   "version": 1,
   "wikiRoot": "wiki",
   "counts": {
-    "nodes": 8,
-    "edges": 11,
+    "nodes": 9,
+    "edges": 12,
     "byType": {
       "index": 3,
-      "journal": 2,
+      "journal": 3,
       "plan": 1,
       "topic": 2
     }
@@ -39,8 +39,33 @@
       ],
       "bytes": 572,
       "degree": 1,
-      "x": 0,
-      "y": 1,
+      "x": 0.173648,
+      "y": 0.984808,
+      "size": 8
+    },
+    {
+      "id": "wiki/journal/2026-11-23-normalize-apg-title.md",
+      "label": "Normalize APG title markup",
+      "type": "journal",
+      "aliases": [],
+      "githubRefs": [
+        {
+          "repository": "jfusco/accessibility-standards",
+          "kind": "issue",
+          "number": 6,
+          "url": "https://github.com/jfusco/accessibility-standards/issues/6"
+        },
+        {
+          "repository": "jfusco/accessibility-standards",
+          "kind": "issue",
+          "number": 14,
+          "url": "https://github.com/jfusco/accessibility-standards/issues/14"
+        }
+      ],
+      "bytes": 599,
+      "degree": 1,
+      "x": -0.5,
+      "y": 0.866025,
       "size": 8
     },
     {
@@ -58,8 +83,8 @@
       ],
       "bytes": 944,
       "degree": 3,
-      "x": -0.707107,
-      "y": 0.707107,
+      "x": -0.939693,
+      "y": 0.34202,
       "size": 8
     },
     {
@@ -70,8 +95,8 @@
       "githubRefs": [],
       "bytes": 2928,
       "degree": 2,
-      "x": 0.707107,
-      "y": 0.707107,
+      "x": 0.766044,
+      "y": 0.642788,
       "size": 12
     },
     {
@@ -82,8 +107,8 @@
       "githubRefs": [],
       "bytes": 1437,
       "degree": 2,
-      "x": -1,
-      "y": 0,
+      "x": -0.939693,
+      "y": -0.34202,
       "size": 8
     },
     {
@@ -94,8 +119,8 @@
       "githubRefs": [],
       "bytes": 522,
       "degree": 3,
-      "x": -0.707107,
-      "y": -0.707107,
+      "x": -0.5,
+      "y": -0.866025,
       "size": 12
     },
     {
@@ -105,9 +130,9 @@
       "aliases": [],
       "githubRefs": [],
       "bytes": 598,
-      "degree": 3,
-      "x": 0,
-      "y": -1,
+      "degree": 4,
+      "x": 0.173648,
+      "y": -0.984808,
       "size": 8
     },
     {
@@ -118,12 +143,19 @@
       "githubRefs": [],
       "bytes": 1472,
       "degree": 3,
-      "x": 0.707107,
-      "y": -0.707107,
+      "x": 0.766044,
+      "y": -0.642788,
       "size": 8
     }
   ],
   "edges": [
+    {
+      "id": "2352ad951c467f63",
+      "source": "wiki/journal/2026-11-23-normalize-apg-title.md",
+      "target": "wiki/topics/project-maintenance.md",
+      "type": "topic",
+      "relation": "topic"
+    },
     {
       "id": "28e1625c3ff149b3",
       "source": "wiki/journal/2026-11-23-standalone-launch.md",
