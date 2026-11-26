@@ -1,5 +1,7 @@
 ---
 topics: [standalone-contracts, project-maintenance]
+issue: 'https://github.com/jfusco/accessibility-standards/issues/1'
+issues: ['https://github.com/jfusco/accessibility-standards/issues/1']
 ---
 # Standalone project launch
 

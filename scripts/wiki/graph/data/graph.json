@@ -2,11 +2,11 @@
   "version": 1,
   "wikiRoot": "wiki",
   "counts": {
-    "nodes": 10,
-    "edges": 13,
+    "nodes": 12,
+    "edges": 15,
     "byType": {
       "index": 3,
-      "journal": 4,
+      "journal": 6,
       "plan": 1,
       "topic": 2
     }
@@ -37,10 +37,10 @@
           "url": "https://github.com/jfusco/accessibility-standards/issues/11"
         }
       ],
-      "bytes": 572,
+      "bytes": 713,
       "degree": 1,
-      "x": 0.309017,
-      "y": 0.951057,
+      "x": 0.5,
+      "y": 0.866025,
       "size": 8
     },
     {
@@ -62,10 +62,10 @@
           "url": "https://github.com/jfusco/accessibility-standards/issues/14"
         }
       ],
-      "bytes": 599,
+      "bytes": 740,
       "degree": 1,
-      "x": -0.309017,
-      "y": 0.951057,
+      "x": 0,
+      "y": 1,
       "size": 8
     },
     {
@@ -81,10 +81,48 @@
           "url": "https://github.com/jfusco/accessibility-standards/issues/1"
         }
       ],
-      "bytes": 944,
+      "bytes": 1083,
       "degree": 3,
-      "x": -0.809017,
-      "y": 0.587785,
+      "x": -0.5,
+      "y": 0.866025,
+      "size": 8
+    },
+    {
+      "id": "wiki/journal/2026-11-24-review-apg-patterns-index.md",
+      "label": "Accept the APG patterns index baseline",
+      "type": "journal",
+      "aliases": [],
+      "githubRefs": [
+        {
+          "repository": "jfusco/accessibility-standards",
+          "kind": "issue",
+          "number": 4,
+          "url": "https://github.com/jfusco/accessibility-standards/issues/4"
+        }
+      ],
+      "bytes": 773,
+      "degree": 1,
+      "x": -0.866025,
+      "y": 0.5,
+      "size": 8
+    },
+    {
+      "id": "wiki/journal/2026-11-24-review-apg-practices-index.md",
+      "label": "Accept the APG practices index baseline",
+      "type": "journal",
+      "aliases": [],
+      "githubRefs": [
+        {
+          "repository": "jfusco/accessibility-standards",
+          "kind": "issue",
+          "number": 5,
+          "url": "https://github.com/jfusco/accessibility-standards/issues/5"
+        }
+      ],
+      "bytes": 945,
+      "degree": 1,
+      "x": -1,
+      "y": 0,
       "size": 8
     },
     {
@@ -102,8 +140,8 @@
       ],
       "bytes": 926,
       "degree": 1,
-      "x": -1,
-      "y": 0,
+      "x": -0.866025,
+      "y": -0.5,
       "size": 8
     },
     {
@@ -114,8 +152,8 @@
       "githubRefs": [],
       "bytes": 2928,
       "degree": 2,
-      "x": 0.809017,
-      "y": 0.587785,
+      "x": 0.866025,
+      "y": 0.5,
       "size": 12
     },
     {
@@ -126,8 +164,8 @@
       "githubRefs": [],
       "bytes": 1437,
       "degree": 2,
-      "x": -0.809017,
-      "y": -0.587785,
+      "x": -0.5,
+      "y": -0.866025,
       "size": 8
     },
     {
@@ -138,8 +176,8 @@
       "githubRefs": [],
       "bytes": 522,
       "degree": 3,
-      "x": -0.309017,
-      "y": -0.951057,
+      "x": 0,
+      "y": -1,
       "size": 12
     },
     {
@@ -149,9 +187,9 @@
       "aliases": [],
       "githubRefs": [],
       "bytes": 598,
-      "degree": 4,
-      "x": 0.309017,
-      "y": -0.951057,
+      "degree": 6,
+      "x": 0.5,
+      "y": -0.866025,
       "size": 8
     },
     {
@@ -162,8 +200,8 @@
       "githubRefs": [],
       "bytes": 1472,
       "degree": 4,
-      "x": 0.809017,
-      "y": -0.587785,
+      "x": 0.866025,
+      "y": -0.5,
       "size": 8
     }
   ],
@@ -230,6 +268,20 @@
       "target": "wiki/topics/standalone-contracts.md",
       "type": "link",
       "relation": "link"
+    },
+    {
+      "id": "afc6e4033eecd87f",
+      "source": "wiki/journal/2026-11-24-review-apg-patterns-index.md",
+      "target": "wiki/topics/project-maintenance.md",
+      "type": "topic",
+      "relation": "topic"
+    },
+    {
+      "id": "c313d9974ce869fb",
+      "source": "wiki/journal/2026-11-24-review-apg-practices-index.md",
+      "target": "wiki/topics/project-maintenance.md",
+      "type": "topic",
+      "relation": "topic"
     },
     {
       "id": "dc477bef96e3a2fc",
