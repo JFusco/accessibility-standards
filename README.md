@@ -14,6 +14,21 @@ npm exec --offline -- accessibility-standards resolve pattern.dialog
 
 Commit the lockfile and the small managed entry in `AGENTS.md`. Running `init` again preserves existing instructions. With pnpm, use `pnpm add -DE accessibility-standards` and `pnpm exec accessibility-standards`. A site built in another language can keep npm solely for development tools.
 
+### Verified 1.0.0 adoption
+
+On 2026-11-24, an empty npm project with an existing `AGENTS.md` adopted the [v1.0.0 release](https://github.com/JFusco/accessibility-standards/releases/tag/v1.0.0) with Node 24.14.0 and npm 11.9.0.
+
+```sh
+npm install --save-dev --save-exact accessibility-standards@1.0.0
+npm ls accessibility-standards          # accessibility-standards@1.0.0
+npm audit signatures                    # verified registry signature and attestation
+npm exec --offline -- accessibility-standards init   # Updated AGENTS.md
+npm exec --offline -- accessibility-standards init   # AGENTS.md is current
+npm exec --offline -- accessibility-standards resolve pattern.dialog
+```
+
+The lockfile resolved `https://registry.npmjs.org/accessibility-standards/-/accessibility-standards-1.0.0.tgz` with integrity `sha512-WBxdl/aWmnAPCPR86tnXX5Tn+Yy686LJdQj7HKFnSiSd/C4F4NDsNoHk5fZf1UiAT0nphQyb6/zMbfuMPsPNHA==`. The first `init` appended the managed block after the original text. The second left the file byte-for-byte unchanged. The dialog lookup returned focus, keyboard, and naming dependencies, the `unit`, `axe`, `e2e`, and `human` evidence routes, and `provenance.package` of `accessibility-standards@1.0.0`, which identifies the version that supplied the contract.
+
 Use `accessibility-standards index` to discover IDs. A dialog lookup includes the pattern and its focus placement, keyboard, naming, dismissal, and focus-return dependencies. JavaScript consumers can import `resolveContract` and read the same contract offline.
 
 ```js
