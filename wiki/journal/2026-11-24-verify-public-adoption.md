@@ -1,5 +1,7 @@
 ---
 topics: [standalone-contracts]
+issue: 'https://github.com/jfusco/accessibility-standards/issues/3'
+issues: ['https://github.com/jfusco/accessibility-standards/issues/3']
 ---
 # Verify adoption from the public 1.0.0 release
 
