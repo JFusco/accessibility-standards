@@ -1,5 +1,7 @@
 ---
 topics: [project-maintenance]
+issue: 'https://github.com/jfusco/accessibility-standards/issues/5'
+issues: ['https://github.com/jfusco/accessibility-standards/issues/5']
 ---
 # Accept the APG practices index baseline
 
